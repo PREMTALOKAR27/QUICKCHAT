@@ -1,9 +1,12 @@
-import { use, useState } from "react"
+import { useContext, useState } from "react"
 import assets from "../assets/assets"
 import {ChevronLeft } from 'lucide-react';
+import { AuthContext } from "../context/AuthContex";
 
 
 const LoginPage = () => {
+
+  const {login}= useContext(AuthContext);
 
   const [currState, setCurrState]=useState("Sign up");
   const [fullName, setFullName]=useState("");
@@ -12,12 +15,15 @@ const LoginPage = () => {
   const [bio, setBio]=useState("");
   const [isDataSubmitted, setIsDataSubmitted]=useState(false);
 
+
+
   const onSubmitHandler= (e)=>{
     e.preventDefault();
     if(currState === 'Sign up' && !isDataSubmitted){
       setIsDataSubmitted(true);
       return;
     }
+    login(currState === "Sign up" ? 'signup' :'login', {fullName,email,password,bio});
   }
 
   return (
@@ -40,7 +46,7 @@ const LoginPage = () => {
         </h2>
 
         {currState === "Sign up" && !isDataSubmitted && (
-          <input onChange={(e)=>setFullName(e.target.value)} value={fullName} type="text" className="p-2 border border-gray-500 rounded-md focus:outline-none  focus:ring-2 focus:ring-indigo-500 " placeholder="Full Name" required/>
+          <input onChange={(e)=>setFullName(e.target.value)} value={fullName} type="text" className="p-2 border border-gray-500 rounded-md focus:outline-none  focus:ring-2 focus:ring-indigo-500 " placeholder="Name" required/>
         )}
 
         {!isDataSubmitted && (
