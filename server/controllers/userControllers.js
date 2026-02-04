@@ -5,10 +5,10 @@ import cloudinary from "../lib/cloudinary.js";
 
 //singup a new user
 export const signup = async (req, res) => {
-  const { fullname, email, password, bio } = req.body;
+  const { fullName, email, password, bio } = req.body;
 
   try {
-    if (!fullname || !email || !password || !bio) {
+    if (!fullName || !email || !password || !bio) {
       return res.json({ success: false, message: "Missing Details" });
     }
     const user = await User.findOne({ email });
@@ -21,7 +21,7 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await User.create({
-      fullname,
+      fullName,
       email,
       password: hashedPassword,
       bio,
@@ -63,7 +63,7 @@ export const login = async (req, res) => {
     res.json({
       success: true,
       message: "Login successfully",
-      userdata,
+      userData: userdata,
       token,
     });
   } catch (error) {
@@ -80,14 +80,14 @@ export const checkAuth = (req, res) => {
 //controller to update user profile details
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic, bio, fullname } = req.body;
+    const { profilePic, bio, fullName } = req.body;
     const userId = req.user._id;
     let updateUser;
 
     if (!profilePic) {
       updateUser = await User.findByIdAndUpdate(
         userId,
-        { bio, fullname },
+        { bio, fullName },
         { new: true },
       );
     } else {
@@ -97,7 +97,7 @@ export const updateProfile = async (req, res) => {
 
       updateUser = await User.findByIdAndUpdate(
         userId,
-        { profilePic: upload.secure_url, bio, fullname },
+        { profilePic: upload.secure_url, bio, fullName },
         { new: true },
       );
     }
