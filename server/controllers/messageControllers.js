@@ -21,8 +21,8 @@ export const getUsersForSidebar= async (req,res)=>{
         await Promise.all(promises);
         res.json({success: true, users: filteredUsers, unseenMessages});
     }catch(error){
-        console.log(error.messages);
-        req.json({success: false, messages: error.message});
+        console.log(error.message);
+        res.json({success: false, messages: error.message});
     }
 };
 
@@ -45,8 +45,8 @@ export const getMessages = async (req,res)=>{
 
       res.json({ success: true, messages });
     } catch (error) {
-      console.log(error.messages);
-      req.json({ success: false, messages: error.message });
+      console.log(error.message);
+      res.json({ success: false, messages: error.message });
     }
 };
 
@@ -57,8 +57,8 @@ export const markMessageAsSeen= async (req,res)=>{
         await Message.findByIdAndUpdate(id, {seen: true});
         res.json({success: true});
     } catch (error) {
-      console.log(error.messages);
-      req.json({ success: false, messages: error.message });
+      console.log(error.message);
+      res.json({ success: false, messages: error.message });
     }
 };
 
@@ -71,11 +71,17 @@ export const sendMessage= async (req,res) =>{
 
       let imageUrl;
       if(image){
-        const upload = cloudinary.uploader.upload(image, {
-          folder: "quickchat",
-        });
-        imageUrl=(await upload).secure_url;
-
+        console.log("Uploading image to Cloudinary...");
+        try {
+            const upload = await cloudinary.uploader.upload(image, {
+                folder: "quickchat",
+            });
+            imageUrl= upload.secure_url;
+            console.log("Image uploaded successfully:", imageUrl);
+        } catch (uploadError) {
+            console.error("Cloudinary upload failed:", uploadError);
+            return res.json({ success: false, message: "Image upload failed" });
+        }
       }
 
       const newMessage = await Message.create({
@@ -97,7 +103,7 @@ export const sendMessage= async (req,res) =>{
       });
       
     } catch (error) {
-      console.log(error.messages);
-      req.json({ success: false, messages: error.message });
+      console.log(error.message);
+      res.json({ success: false, messages: error.message });
     }
 }
