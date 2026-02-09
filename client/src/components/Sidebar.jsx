@@ -8,7 +8,7 @@ import { ChatContext } from '../context/chatContex';
 
 const Sidebar = () => {
 
-  const {getUsers,users,selectedUser,setSelectedUser, unseenMessages, setUnSeenMessages} = useContext(ChatContext);
+  const {getUsers,users,selectedUser,setSelectedUser, unseenMessages, setUnSeenMessages, setShowRightSidebar} = useContext(ChatContext);
   const navigate=useNavigate();
 
   const {logout, onlineUsers}= useContext(AuthContext);
@@ -49,7 +49,7 @@ const Sidebar = () => {
 
       <div className='flex flex-col'>
         {filteredUsers.map((user,index)=>(
-          <div onClick={()=>{setSelectedUser(user); setUnSeenMessages(prev=>({...prev, [user._id]: 0}))}} key={index} className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}> 
+          <div onClick={()=>{setSelectedUser(user); setUnSeenMessages(prev=>({...prev, [user._id]: 0})); setShowRightSidebar(false)}} key={index} className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}> 
             <img className='rounded-full w-[35px] aspect-[1/1]'  src={user?.profilePic || assets.avatar_icon} alt="profile image" />
             <div className='flex flex-col leading-5'>
               <p>{user.fullName}</p>

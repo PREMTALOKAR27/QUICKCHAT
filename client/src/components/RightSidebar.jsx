@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from 'react'
 import assets from "../assets/assets"
 import { ChatContext } from '../context/chatContex';
 import { AuthContext } from '../context/AuthContex';
+import { X } from 'lucide-react';
 
 const RightSidebar = () => {
 
-  const {selectedUser, messages}= useContext(ChatContext);
+  const {selectedUser, messages, showRightSidebar, setShowRightSidebar}= useContext(ChatContext);
   const {logout,onlineUsers} = useContext(AuthContext);
   const [msgImages, setMsgImages]= useState([]);
 
@@ -17,7 +18,15 @@ const RightSidebar = () => {
   },[messages])
 
   return selectedUser && (
-    <div className={`bg-[#8185B2]/10 text-white w-full relative overflow-y-scroll ${selectedUser ? "max-md:hidden" : ""}`}>
+    <div className={`bg-[#8185B2]/10 text-white w-full h-full relative overflow-y-scroll ${showRightSidebar ? "max-md:block" : "max-md:hidden"}`}>
+      <button
+        type="button"
+        onClick={()=>setShowRightSidebar(false)}
+        className='md:hidden absolute top-4 right-4 p-2 rounded-full hover:bg-white/10'
+        aria-label='Close details'
+      >
+        <X size={18} />
+      </button>
       <div className='pt-16 flex flex-col items-center gap-2 text-xs font-light'>
         <img src={selectedUser?.profilePic || assets.avatar_icon} alt="" 
         className='w-20 aspect-[1/1] rounded-full'/>

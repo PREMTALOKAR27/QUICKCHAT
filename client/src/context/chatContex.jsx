@@ -11,6 +11,7 @@ export const ChatProvider = ({children})=>{
     const [users,setUser]= useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setUnseenMessages]= useState({});
+    const [showRightSidebar, setShowRightSidebar]= useState(false);
 
     const {socket,axios}= useContext(AuthContext);
 
@@ -80,6 +81,12 @@ export const ChatProvider = ({children})=>{
         return ()=> unsubscribeFromMessages();
     },[socket,selectedUser]);
 
+    useEffect(()=>{
+        if(!selectedUser){
+            setShowRightSidebar(false);
+        }
+    },[selectedUser]);
+
     const value={
         messages,
         users,
@@ -90,6 +97,8 @@ export const ChatProvider = ({children})=>{
         setSelectedUser,
         unseenMessages,
         setUnseenMessages,
+        showRightSidebar,
+        setShowRightSidebar,
 
     }
 

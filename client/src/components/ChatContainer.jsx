@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 const ChatContainer = () => {
 
-  const {messages, selectedUser, setSelectedUser, sendMessage, getMessages}=useContext(ChatContext);
+  const {messages, selectedUser, setSelectedUser, sendMessage, getMessages, showRightSidebar, setShowRightSidebar}=useContext(ChatContext);
   const {authUser, onlineUsers}= useContext(AuthContext);
 
   const scrollEnd= useRef();
@@ -53,13 +53,13 @@ const ChatContainer = () => {
 
 
   return selectedUser ? (
-    <div className=' h-full overflow-scroll backdrop-blur-lg text-white' >
+    <div className={`h-full overflow-scroll backdrop-blur-lg text-white ${showRightSidebar ? 'max-md:hidden' : ''}`} >
 
       {/*------------ header------------*/}
       <div className='relative flex items-center gap-3 py-3 mx-4 border-b border-stone-500 '>
         
         <img className='rounded-full w-8 ' src={selectedUser.profilePic || assets.avatar_icon} alt="profile image" />
-        <p className='text-lg flex items-center gap-2'>{selectedUser.fullName}
+        <p onClick={()=>setShowRightSidebar(true)} className='text-lg flex items-center gap-2 cursor-pointer md:cursor-default'>{selectedUser.fullName}
           {onlineUsers.includes(selectedUser._id) && <span className='w-2 h-2 rounded-full bg-green-500'></span>}
         </p>
 
