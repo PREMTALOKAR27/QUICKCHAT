@@ -71,15 +71,12 @@ export const sendMessage= async (req,res) =>{
 
       let imageUrl;
       if(image){
-        console.log("Uploading image to Cloudinary...");
         try {
             const upload = await cloudinary.uploader.upload(image, {
                 folder: "quickchat",
             });
             imageUrl= upload.secure_url;
-            console.log("Image uploaded successfully:", imageUrl);
         } catch (uploadError) {
-            console.error("Cloudinary upload failed:", uploadError);
             return res.json({ success: false, message: "Image upload failed" });
         }
       }
