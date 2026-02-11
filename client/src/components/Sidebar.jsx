@@ -14,8 +14,11 @@ const Sidebar = () => {
   const {logout, onlineUsers}= useContext(AuthContext);
 
   const [input, setInput]= useState("");
+  const [isOpen, setIsOpen]= useState(false);
 
   const filteredUsers= input ? users.filter((user)=>user.fullName.toLowerCase().includes(input.toLowerCase())): users;
+
+  let toggleDropdown= ()=>setIsOpen(!isOpen);
 
   useEffect(()=>{
     getUsers();
@@ -32,12 +35,14 @@ const Sidebar = () => {
           </div>  
   
           <div className=' relative group'>
-            <EllipsisVertical className=' cursor-pointer ' size={22} absoluteStrokeWidth />
-            <div className=' absolute top-full right-0 z-20  w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block'>
+            <EllipsisVertical onClick={toggleDropdown} className=' cursor-pointer ' size={22} absoluteStrokeWidth />
+              
+              <div className={`absolute top-full right-0 z-20  w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 ${isOpen ? 'block' : 'hidden'}`}>
               <p onClick={()=> navigate('/profile')} className='cursor-pointer text-sm'>Edit Profile</p>
               <hr className='my-2 border-t border-gray-500' />
               <p onClick={()=>logout()} className='cursor-pointer text-sm' >Logout</p>
             </div>
+            
           </div>
         </div>
 
