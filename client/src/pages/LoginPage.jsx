@@ -31,7 +31,7 @@ const LoginPage = () => {
       gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl">
       
       {/*-------right side---------*/}
-      <img src={assets.favicon} alt="" className="w-[min(30vh,250px)]"/>
+      <img src={assets.favicon} alt="" className="w-[min(30vh,250px)] hidden md:block"/>
 
       {/*--------right side-----------*/}
       <form onSubmit={(e)=>onSubmitHandler(e)} className="border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg">
