@@ -52,6 +52,24 @@ export const ChatProvider = ({children})=>{
         }
     }
 
+    //function to delete message
+    const deleteMessage = async (messageId)=>{
+        if(!messageId){
+            toast.error("Message id missing");
+            return;
+        }
+        try {
+            const {data}= await axios.delete(`/api/messages/${messageId}`);
+            if(data.success){
+                setMessages((prevMessages)=> prevMessages.filter((message)=> message._id !== messageId));
+            }else{
+                toast.error(data.message || data.messages || "Failed to delete message");
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.message || error?.response?.data?.messages || error.message);
+        }
+    }
+
     //function to subscribe to messages for selected user
     const subscribeToMessages= async ()=>{
         if(!socket){
@@ -69,11 +87,31 @@ export const ChatProvider = ({children})=>{
                 }))
             }
         })
+
+        socket.on('messageDeleted', ({messageId, senderId})=>{
+            setMessages((prevMessages)=> prevMessages.filter((message)=> message._id !== messageId));
+            if(senderId){
+                setUnseenMessages((prevUnseenMessages)=>{
+                    const currentCount = prevUnseenMessages[senderId];
+                    if(!currentCount) return prevUnseenMessages;
+                    const nextCount = currentCount - 1;
+                    if(nextCount <= 0){
+                        const updated = {...prevUnseenMessages};
+                        delete updated[senderId];
+                        return updated;
+                    }
+                    return {...prevUnseenMessages, [senderId]: nextCount};
+                })
+            }
+        })
     }
 
     //function to unsubscribe from messages
     const unsubscribeFromMessages =()=>{
-        if(socket) socket.off("newMessage");
+        if(socket){
+            socket.off("newMessage");
+            socket.off("messageDeleted");
+        }
     }
 
     useEffect(()=>{
@@ -94,6 +132,7 @@ export const ChatProvider = ({children})=>{
         getUsers,
         getMessages,
         sendMessage,
+        deleteMessage,
         setSelectedUser,
         unseenMessages,
         setUnseenMessages,

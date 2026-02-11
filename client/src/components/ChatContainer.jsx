@@ -8,11 +8,60 @@ import toast from 'react-hot-toast';
 
 const ChatContainer = () => {
 
-  const {messages, selectedUser, setSelectedUser, sendMessage, getMessages, showRightSidebar, setShowRightSidebar}=useContext(ChatContext);
+  const {messages, selectedUser, setSelectedUser, sendMessage, deleteMessage, getMessages, showRightSidebar, setShowRightSidebar}=useContext(ChatContext);
   const {authUser, onlineUsers}= useContext(AuthContext);
 
   const scrollEnd= useRef();
+  const longPressTimer= useRef(null);
   const [input,setInput]= useState("");
+  const LONG_PRESS_MS= 600;
+
+  const showDeleteToast = (message) => {
+    if(!message?._id){
+      toast.error("Message id missing");
+      return;
+    }
+    toast.dismiss("delete-confirm");
+    toast((t)=>(
+      <div className="flex flex-col gap-2 rounded-lg bg-stone-900/95 p-3 text-sm text-white shadow-lg">
+        <p>Delete this message?</p>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            className="rounded bg-red-500/80 px-3 py-1 text-white hover:bg-red-500"
+            onClick={async ()=>{
+              toast.dismiss(t.id);
+              await deleteMessage(message._id);
+            }}
+          >
+            Delete
+          </button>
+          <button
+            className="rounded bg-white/10 px-3 py-1 text-white hover:bg-white/20"
+            onClick={()=> toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {id: "delete-confirm", duration: 8000});
+  }
+
+  const startLongPress = (message) => {
+    if(message.senderId !== authUser._id) return;
+    if(longPressTimer.current){
+      clearTimeout(longPressTimer.current);
+    }
+    longPressTimer.current = setTimeout(()=>{
+      showDeleteToast(message);
+    }, LONG_PRESS_MS);
+  }
+
+  const cancelLongPress = ()=>{
+    if(longPressTimer.current){
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current= null;
+    }
+  }
 
   // handle sending a message
   const handleSendMessage= async (e)=>{
@@ -70,12 +119,21 @@ const ChatContainer = () => {
 
       {/*---------chat area------*/}
       <div className='flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-3 pb-6'>
-        {messages.map((msg,index)=>(
-          <div key={index} className={`flex items-end gap-2 justify-end ${msg.senderId !== authUser._id && 'flex-row-reverse'}`}>
+        {messages.map((msg,index)=>{
+          const longPressHandlers = msg.senderId === authUser._id ? {
+            onPointerDown: () => startLongPress(msg),
+            onPointerUp: cancelLongPress,
+            onPointerMove: cancelLongPress,
+            onPointerLeave: cancelLongPress,
+            onPointerCancel: cancelLongPress,
+          } : {};
+
+          return (
+          <div key={msg._id || index} className={`flex items-end gap-2 justify-end ${msg.senderId !== authUser._id && 'flex-row-reverse'}`}>
             {msg.image ? (
-              <img src={msg.image} alt="" className='max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8' />
+              <img src={msg.image} alt="" className='max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8' {...longPressHandlers} />
             ):(
-              <p className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white ${msg.senderId === 'authUser._id' ? 'rounded-br-none' : 'rounded-bl-none'}`}>{msg.text}</p>
+              <p className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white ${msg.senderId === authUser._id ? 'rounded-br-none' : 'rounded-bl-none'}`} {...longPressHandlers}>{msg.text}</p>
             )
             }
 
@@ -84,11 +142,11 @@ const ChatContainer = () => {
               <p className='text-gray-500' >{formatMessageTime(msg.createdAt) }</p>
             </div>
           </div>
-        ))}
+        )})}
         <div ref={scrollEnd} ></div>
       </div>
 
-      {/*------bottom arear-------*/}
+      {/*------bottom area-------*/}
       <div className='absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3'>
         <div className='flex-1 flex items-center bg-gray-100/12  rounded-full'>
           <input onChange={(e)=>setInput(e.target.value)} value={input}
